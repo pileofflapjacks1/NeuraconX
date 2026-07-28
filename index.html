@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="NeuraConnect — intention-native catalog browser and download/launcher connector for the Neurabeach hub. Research simulator only. Not a medical device. Not affiliated with Neuralink."
+    />
+    <meta name="theme-color" content="#000000" />
+    <title>NeuraConnect · Neurabeach connector (simulator)</title>
+    <link rel="stylesheet" href="./css/styles.css" />
+  </head>
+  <body>
+    <div
+      id="disclaimer-banner"
+      class="disclaimer-banner"
+      role="note"
+    >
+      <strong>Research simulator only</strong>
+      — NeuraConnect is not a medical device, does not interface with implants,
+      and is not affiliated with Neuralink. Keyboard/mouse drive the intention
+      layer in this prototype.
+    </div>
+
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">NC</div>
+        <div class="brand-text">
+          <h1>NeuraConnect</h1>
+          <p>Neurabeach catalog · intention-native launcher</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <span id="status-pill" class="status-pill">Loading…</span>
+        <button type="button" id="view-toggle" class="btn" aria-pressed="false">
+          List view
+        </button>
+        <button type="button" id="open-history" class="btn">History</button>
+        <button type="button" id="open-settings" class="btn">Settings</button>
+      </div>
+    </header>
+
+    <main class="main">
+      <!-- Catalog -->
+      <section id="catalog-panel" aria-label="Catalog">
+        <div class="toolbar">
+          <div
+            id="filter-bar"
+            class="filter-bar"
+            role="toolbar"
+            aria-label="Category filters"
+          ></div>
+          <div id="highlight-meta" class="highlight-meta" aria-live="polite"></div>
+        </div>
+
+        <div
+          id="catalog-grid"
+          class="catalog-grid"
+          role="listbox"
+          aria-label="Available apps, tools, and games"
+          data-view="grid"
+        ></div>
+
+        <div id="empty-state" class="empty-state" hidden>
+          No items match this filter.
+        </div>
+
+        <div id="help-keys" class="help-keys">
+          <strong style="color: var(--fg)">Simulator controls</strong>
+          —
+          <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> move highlight ·
+          <kbd>Enter</kbd> / <kbd>Space</kbd> select ·
+          <kbd>Y</kbd> confirm (in dialog) ·
+          <kbd>Esc</kbd> / <kbd>N</kbd> cancel ·
+          click a card to select. Multi-step confirmation is required before any
+          simulated download or launch.
+        </div>
+      </section>
+
+      <!-- Settings -->
+      <section id="settings-panel" class="side-panel" hidden aria-label="Settings">
+        <div class="panel-header">
+          <div>
+            <h2>Settings</h2>
+            <p class="lede">
+              Tune simulator feel and confirmation strictness. Changes save
+              locally in this browser.
+            </p>
+          </div>
+          <button type="button" id="close-settings" class="btn btn-ghost">
+            Back
+          </button>
+        </div>
+
+        <div class="field">
+          <label for="setting-sensitivity">
+            Navigation sensitivity
+            <span id="setting-sensitivity-val" class="muted">140 ms</span>
+          </label>
+          <input
+            id="setting-sensitivity"
+            type="range"
+            min="60"
+            max="400"
+            step="10"
+            value="140"
+          />
+          <p class="hint">
+            Minimum gap between accepted directional intentions. Higher = calmer,
+            slower grid movement.
+          </p>
+        </div>
+
+        <div class="field">
+          <label for="setting-strictness">Confirmation strictness</label>
+          <select id="setting-strictness">
+            <option value="standard">Standard — 2 confirmation steps</option>
+            <option value="strict">Strict — 3 confirmation steps</option>
+          </select>
+          <p class="hint">
+            Safety first: at least two explicit confirms before any simulated
+            download or launch.
+          </p>
+        </div>
+
+        <div class="field-row">
+          <div>
+            <div class="switch">
+              <input id="setting-show-flash" type="checkbox" checked />
+              <label for="setting-show-flash">Show intention flash</label>
+            </div>
+            <p class="hint">Brief on-screen label when an intention is accepted.</p>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div>
+            <div class="switch">
+              <input id="setting-reduce-motion" type="checkbox" />
+              <label for="setting-reduce-motion">Reduce motion</label>
+            </div>
+            <p class="hint">Minimize transitions and scroll animation.</p>
+          </div>
+        </div>
+
+        <div style="margin-top: 1.25rem; display: flex; gap: 0.5rem; flex-wrap: wrap">
+          <button type="button" id="reset-settings" class="btn">
+            Reset feel defaults
+          </button>
+          <button type="button" id="done-settings" class="btn btn-primary">
+            Done
+          </button>
+        </div>
+      </section>
+
+      <!-- History -->
+      <section id="history-panel" class="side-panel" hidden aria-label="History">
+        <div class="panel-header">
+          <div>
+            <h2>Recent actions</h2>
+            <p class="lede">
+              Local log of simulated downloads and launches on this device.
+            </p>
+          </div>
+          <button type="button" id="close-history" class="btn btn-ghost">
+            Back
+          </button>
+        </div>
+        <ul id="history-list" class="history-list"></ul>
+        <div style="margin-top: 1rem">
+          <button type="button" id="clear-history" class="btn btn-danger">
+            Clear history
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      NeuraConnect (NeuraconX) · computer-side prototype for the Neurabeach hub ·
+      not implant software · not SaMD · not affiliated with Neuralink
+    </footer>
+
+    <!-- First-load disclaimer -->
+    <div
+      id="disclaimer-modal"
+      class="overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="disclaimer-title"
+      aria-hidden="true"
+    >
+      <div class="dialog">
+        <h2 id="disclaimer-title">Before you begin</h2>
+        <p class="dialog-body" style="white-space: normal">
+          NeuraConnect is a <strong style="color: var(--fg)">browser-based research and accessibility prototype</strong>
+          for browsing a placeholder Neurabeach catalog with intention-friendly
+          controls.
+        </p>
+        <ul class="disclaimer-list">
+          <li>It is <strong>not</strong> a medical device and is not software as a medical device (SaMD).</li>
+          <li>It does <strong>not</strong> connect to Neuralink or any implant hardware.</li>
+          <li>It is <strong>not affiliated with Neuralink</strong> or any implant vendor.</li>
+          <li>Keyboard and mouse act as the intention <em>simulator</em> in this version.</li>
+          <li>Downloads and launches are <strong>simulated locally</strong> for feedback only.</li>
+        </ul>
+        <div class="dialog-actions">
+          <button type="button" id="disclaimer-accept" class="btn btn-primary">
+            I understand — continue to simulator
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Multi-step confirmation -->
+    <div
+      id="confirm-overlay"
+      class="overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="confirm-title"
+      aria-hidden="true"
+    >
+      <div id="confirm-dialog" class="dialog" data-tone="review">
+        <div id="confirm-steps" class="step-dots" aria-hidden="true"></div>
+        <h2 id="confirm-title">Confirm</h2>
+        <p id="confirm-body" class="dialog-body"></p>
+        <div class="dialog-actions">
+          <button type="button" id="confirm-secondary" class="btn">
+            Cancel
+          </button>
+          <button type="button" id="confirm-primary" class="btn btn-accent">
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Simulated action feedback -->
+    <div
+      id="action-panel"
+      class="action-panel"
+      role="status"
+      aria-live="polite"
+      data-status="running"
+    >
+      <h2 id="action-title">Action</h2>
+      <p id="action-message">…</p>
+      <div
+        class="progress-track"
+        role="progressbar"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="0"
+      >
+        <div id="action-bar" class="progress-bar"></div>
+      </div>
+      <div class="action-row">
+        <span id="action-progress" class="action-progress">0%</span>
+        <button type="button" id="action-cancel" class="btn btn-danger">
+          Cancel
+        </button>
+      </div>
+    </div>
+
+    <div
+      id="intent-flash"
+      class="intent-flash"
+      aria-hidden="true"
+      data-source=""
+    ></div>
+
+    <script type="module" src="./js/app.js"></script>
+  </body>
+</html>

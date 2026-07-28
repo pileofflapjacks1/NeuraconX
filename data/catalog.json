@@ -1,0 +1,127 @@
+{
+  "version": 1,
+  "source": "placeholder",
+  "note": "Replace this file with live Neurabeach catalog data later. All items are local placeholders for the NeuraConnect prototype.",
+  "items": [
+    {
+      "id": "neurashell",
+      "name": "NeuraShell",
+      "shortDescription": "Daily-driver control plane: readiness, ARM gate, freeze UI, calibration, record/replay. Simulator-first.",
+      "category": "tool",
+      "status": "available",
+      "action": "launch",
+      "version": "0.4.0",
+      "tags": ["control-plane", "safety", "suite"]
+    },
+    {
+      "id": "neurabinder",
+      "name": "NeuraBinder",
+      "shortDescription": "End-user product demo — TCG collection browser with BCI Mode and intention-friendly navigation.",
+      "category": "game",
+      "status": "available",
+      "action": "launch",
+      "version": "0.3.0",
+      "tags": ["app", "demo", "bci-mode"]
+    },
+    {
+      "id": "neuralbridge",
+      "name": "NeuralBridge",
+      "shortDescription": "Intention middleware: simulator backends, multi-client bus, policies, and app-facing intention API.",
+      "category": "tool",
+      "status": "available",
+      "action": "download",
+      "version": "0.5.0",
+      "tags": ["middleware", "intents", "suite"]
+    },
+    {
+      "id": "neurarobobridge",
+      "name": "NeuraRoboBridge",
+      "shortDescription": "Safe intention → robot path. Simulator-first robot control research prototype.",
+      "category": "research",
+      "status": "available",
+      "action": "launch",
+      "version": "0.2.0",
+      "tags": ["robot", "safety", "sim"]
+    },
+    {
+      "id": "intent-to-os",
+      "name": "Intent → OS Adapter",
+      "shortDescription": "Reference adapter mapping velocity/click streams to OS pointer events. Local CLI only.",
+      "category": "tool",
+      "status": "available",
+      "action": "download",
+      "version": "0.1.2",
+      "tags": ["adapter", "os", "reference"]
+    },
+    {
+      "id": "neural-flow-architect",
+      "name": "Neural Flow Architect",
+      "shortDescription": "Flow-state co-pilot research tool. Synthetic signals only in the public demo.",
+      "category": "research",
+      "status": "available",
+      "action": "launch",
+      "version": "0.2.1",
+      "tags": ["research", "flow", "synthetic"]
+    },
+    {
+      "id": "signal-sandbox",
+      "name": "Signal Sandbox",
+      "shortDescription": "Placeholder training arena for discrete intention practice (move, select, confirm).",
+      "category": "game",
+      "status": "available",
+      "action": "launch",
+      "version": "0.1.0",
+      "tags": ["training", "placeholder", "game"]
+    },
+    {
+      "id": "catalog-pulse",
+      "name": "Catalog Pulse",
+      "shortDescription": "Lightweight status board for suite health checks and local endpoint reachability.",
+      "category": "tool",
+      "status": "beta",
+      "action": "download",
+      "version": "0.0.9",
+      "tags": ["ops", "placeholder"]
+    },
+    {
+      "id": "mindmaze-lite",
+      "name": "MindMaze Lite",
+      "shortDescription": "Example turn-based puzzle game designed for sparse intentions instead of continuous cursor control.",
+      "category": "game",
+      "status": "available",
+      "action": "launch",
+      "version": "0.1.0",
+      "tags": ["game", "example", "sparse-intent"]
+    },
+    {
+      "id": "intent-lab",
+      "name": "Intent Lab Notebook",
+      "shortDescription": "Research notes workspace for logging intention sessions and reviewing confidence timelines.",
+      "category": "research",
+      "status": "coming_soon",
+      "action": "download",
+      "version": "0.0.1",
+      "tags": ["research", "logging"]
+    },
+    {
+      "id": "calm-focus",
+      "name": "Calm Focus",
+      "shortDescription": "Minimal ambient focus timer driven by discrete start/hold/stop intentions.",
+      "category": "tool",
+      "status": "available",
+      "action": "launch",
+      "version": "0.1.0",
+      "tags": ["a11y", "focus", "example"]
+    },
+    {
+      "id": "gridwalker",
+      "name": "Gridwalker",
+      "shortDescription": "Example grid-navigation game for validating move_up / move_down / select mappings.",
+      "category": "game",
+      "status": "beta",
+      "action": "launch",
+      "version": "0.2.0",
+      "tags": ["game", "navigation", "example"]
+    }
+  ]
+}
