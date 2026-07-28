@@ -1,16 +1,18 @@
 /**
  * NeuraconX — multi-step safety confirmation flow.
  *
- * Standard: 2 explicit steps before any download/launch is triggered.
- * Strict: 3 steps (adds a final “I understand this is irreversible in this session” gate).
+ * Standard: 2 explicit steps before any connect/open is triggered.
+ * Strict: 3 steps (adds a final safety gate).
  *
  * Language is deliberately verbose to reduce accidental activation.
  */
 
+import { primaryConnectTarget } from "./catalog.js";
+
 /**
  * @typedef {Object} ConfirmSession
  * @property {import('./catalog.js').CatalogItem} item
- * @property {number} step // 1-based
+ * @property {number} step
  * @property {number} totalSteps
  * @property {'standard'|'strict'} strictness
  * @property {boolean} active
@@ -39,7 +41,6 @@ export function startConfirmation(item, strictness = "standard") {
 }
 
 /**
- * Advance one step. Returns { session, complete }.
  * @param {ConfirmSession} session
  */
 export function advanceConfirmation(session) {
@@ -64,19 +65,23 @@ export function cancelConfirmation(session) {
 }
 
 /**
- * Copy for each step — explicit and safety-first.
  * @param {ConfirmSession} session
  */
 export function getStepContent(session) {
-  const { item, step, totalSteps, strictness } = session;
-  const actionVerb = item.action === "launch" ? "LAUNCH" : "DOWNLOAD";
-  const actionNoun = item.action === "launch" ? "launch" : "download";
+  const { item, step, totalSteps } = session;
+  const primary = primaryConnectTarget(item);
   const name = item.name;
+  const targetDesc =
+    primary.kind === "open" && primary.url
+      ? `${primary.label}:\n${primary.url}`
+      : primary.kind === "copy"
+        ? `${primary.label}:\n${item.installHint || "(command)"}`
+        : primary.label;
 
   if (step === 1) {
     return {
       title: `Step 1 of ${totalSteps}: Review selection`,
-      body: `You selected “${name}”.\n\nYou are about to begin a simulated ${actionNoun}. This does not install software on your system from a remote server in this prototype — it only runs a local simulation with progress feedback.\n\nIs “${name}” the item you intended to ${actionNoun}?`,
+      body: `You selected “${name}”.\n\nPrimary connect action after final confirm:\n${targetDesc}\n\nThis will open an external page or copy an install command in your browser. NeuraconX does not install software silently.\n\nIs “${name}” the item you intended to connect?`,
       primaryLabel: `Yes — I selected ${name}`,
       secondaryLabel: "No — cancel",
       tone: "review",
@@ -85,19 +90,18 @@ export function getStepContent(session) {
 
   if (step === 2) {
     return {
-      title: `Step 2 of ${totalSteps}: Explicit ${actionNoun} confirmation`,
-      body: `Confirm action:\n\n${actionVerb} “${name}” (${item.category} · ${item.version ?? "n/a"})\n\nThis is your second confirmation. Accidental activation should stop here unless you intentionally confirm again.\n\nDo you want to ${actionNoun} “${name}” now?`,
-      primaryLabel: `Confirm ${actionNoun}`,
+      title: `Step 2 of ${totalSteps}: Explicit connect confirmation`,
+      body: `Confirm action:\n\nCONNECT “${name}” (${item.category} · ${item.version ?? "n/a"})\n\n${targetDesc}\n\nThis is your second confirmation. Accidental activation should stop here unless you intentionally confirm again.\n\nDo you want to ${primary.label.toLowerCase()} for “${name}” now?`,
+      primaryLabel: `Confirm — ${primary.label}`,
       secondaryLabel: "Go back / cancel",
       tone: "confirm",
     };
   }
 
-  // Strict step 3
   return {
     title: `Step 3 of ${totalSteps}: Final safety gate (strict mode)`,
-    body: `Strict confirmation is enabled.\n\nFinal check: you are authorizing a simulated ${actionNoun} of “${name}”.\n\nNeuraconX is a research/accessibility prototype only. It is not a medical device and is not affiliated with Neuralink.\n\nProceed with the simulated ${actionNoun}?`,
-    primaryLabel: `Final confirm — ${actionVerb} ${name}`,
+    body: `Strict confirmation is enabled.\n\nFinal check: you are authorizing NeuraconX to ${primary.label.toLowerCase()} for “${name}”.\n\nNeuraconX is a research/accessibility prototype only. It is not a medical device and is not affiliated with Neuralink.\n\nProceed?`,
+    primaryLabel: `Final confirm — ${primary.label}`,
     secondaryLabel: "Abort",
     tone: "strict",
   };

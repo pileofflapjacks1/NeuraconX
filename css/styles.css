@@ -322,18 +322,99 @@ a {
   border-color: rgba(29, 155, 240, 0.45);
 }
 
+.toolbar-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
 .highlight-meta {
   font-size: 0.85rem;
   color: var(--muted);
   min-height: 1.4em;
+  text-align: right;
 }
 
 .highlight-meta strong {
   color: var(--fg);
 }
 
+.catalog-source {
+  font-size: 0.72rem;
+  font-family: var(--mono);
+  text-align: right;
+}
+
 .muted {
   color: var(--muted);
+}
+
+.settings-heading {
+  margin: 1.35rem 0 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.text-input {
+  width: 100%;
+  min-height: 40px;
+  padding: 0.45rem 0.7rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--elevated);
+  color: var(--fg);
+}
+
+.text-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.card-links {
+  color: var(--muted);
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.7rem;
+}
+
+.action-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+}
+
+.btn-sm {
+  min-height: 34px;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.8rem;
+}
+
+.status-pill[data-bridge="connected"]::before {
+  background: var(--success);
+}
+
+.status-pill[data-bridge="connecting"]::before {
+  background: var(--warning);
+}
+
+.status-pill[data-bridge="error"]::before {
+  background: var(--danger);
+}
+
+.field code,
+.hint code,
+.help-keys code {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  color: #9ab;
 }
 
 /* ── Catalog grid ───────────────────────────────────────────────────────── */

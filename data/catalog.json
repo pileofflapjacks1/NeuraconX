@@ -1,127 +1,187 @@
 {
-  "version": 1,
-  "source": "placeholder",
-  "note": "Replace this file with live Neurabeach catalog data later. All items are local placeholders for the NeuraconX prototype.",
+  "version": 2,
+  "source": "local",
+  "note": "Bundled NeuraconX catalog. Prefer live Neurabeach when reachable; this file is the offline fallback and includes example games not on Beach.",
   "items": [
     {
       "id": "neurashell",
+      "slug": "neurashell",
       "name": "NeuraShell",
       "shortDescription": "Daily-driver control plane: readiness, ARM gate, freeze UI, calibration, record/replay. Simulator-first.",
       "category": "tool",
       "status": "available",
       "action": "launch",
       "version": "0.4.0",
-      "tags": ["control-plane", "safety", "suite"]
+      "tags": ["control-plane", "safety", "suite"],
+      "demoUrl": "https://neurashell-eta.vercel.app/demo",
+      "projectUrl": "https://neurabeach.com/projects/neurashell",
+      "githubUrl": "https://github.com/pileofflapjacks1/NeuraShell",
+      "installHint": "git clone https://github.com/pileofflapjacks1/NeuraShell && cd NeuraShell && pnpm install && pnpm dev"
     },
     {
       "id": "neurabinder",
+      "slug": "neurabinder",
       "name": "NeuraBinder",
       "shortDescription": "End-user product demo — TCG collection browser with BCI Mode and intention-friendly navigation.",
       "category": "game",
       "status": "available",
       "action": "launch",
       "version": "0.3.0",
-      "tags": ["app", "demo", "bci-mode"]
+      "tags": ["app", "demo", "bci-mode"],
+      "demoUrl": "https://neura-binder.vercel.app/demo",
+      "projectUrl": "https://neurabeach.com/projects/neurabinder",
+      "githubUrl": "https://github.com/pileofflapjacks1/NeuraBinder",
+      "installHint": "git clone https://github.com/pileofflapjacks1/NeuraBinder && cd NeuraBinder && pnpm install && pnpm dev"
     },
     {
       "id": "neuralbridge",
+      "slug": "neuralbridge",
       "name": "NeuralBridge",
       "shortDescription": "Intention middleware: simulator backends, multi-client bus, policies, and app-facing intention API.",
       "category": "tool",
       "status": "available",
       "action": "download",
-      "version": "0.5.0",
-      "tags": ["middleware", "intents", "suite"]
+      "version": "0.8.1",
+      "tags": ["middleware", "intents", "suite"],
+      "demoUrl": "https://neura-binder.vercel.app/demo",
+      "projectUrl": "https://neurabeach.com/projects/neuralbridge",
+      "githubUrl": "https://github.com/pileofflapjacks1/neuralbridge",
+      "installHint": "git clone https://github.com/pileofflapjacks1/neuralbridge && cd neuralbridge && npm install && npm run build && npx neuralbridge serve --port 7711"
     },
     {
       "id": "neurarobobridge",
+      "slug": "neurarobobridge",
       "name": "NeuraRoboBridge",
       "shortDescription": "Safe intention → robot path. Simulator-first robot control research prototype.",
       "category": "research",
       "status": "available",
       "action": "launch",
-      "version": "0.2.0",
-      "tags": ["robot", "safety", "sim"]
+      "version": "0.3.0",
+      "tags": ["robot", "safety", "sim"],
+      "demoUrl": "https://neurarobobridge.vercel.app",
+      "projectUrl": "https://neurabeach.com/projects/neurarobobridge",
+      "githubUrl": "https://github.com/pileofflapjacks1/neurarobobridge",
+      "installHint": "git clone https://github.com/pileofflapjacks1/neurarobobridge && cd neurarobobridge && pnpm install && pnpm dev"
     },
     {
       "id": "intent-to-os",
+      "slug": "intent-to-os-adapter",
       "name": "Intent → OS Adapter",
       "shortDescription": "Reference adapter mapping velocity/click streams to OS pointer events. Local CLI only.",
       "category": "tool",
       "status": "available",
       "action": "download",
-      "version": "0.1.2",
-      "tags": ["adapter", "os", "reference"]
+      "version": "1.0.0",
+      "tags": ["adapter", "os", "reference"],
+      "demoUrl": null,
+      "projectUrl": "https://neurabeach.com/projects/intent-to-os-adapter",
+      "githubUrl": "https://github.com/pileofflapjacks1/neurabeach/tree/main/packages/intent-to-os",
+      "installHint": "See package at github.com/pileofflapjacks1/neurabeach/tree/main/packages/intent-to-os"
     },
     {
       "id": "neural-flow-architect",
+      "slug": "neural-flow-architect",
       "name": "Neural Flow Architect",
       "shortDescription": "Flow-state co-pilot research tool. Synthetic signals only in the public demo.",
       "category": "research",
       "status": "available",
       "action": "launch",
-      "version": "0.2.1",
-      "tags": ["research", "flow", "synthetic"]
+      "version": "0.2.0",
+      "tags": ["research", "flow", "synthetic"],
+      "demoUrl": "https://neural-flow-architect.vercel.app",
+      "projectUrl": "https://neurabeach.com/projects/neural-flow-architect",
+      "githubUrl": "https://github.com/pileofflapjacks1/neural-flow-architect",
+      "installHint": "git clone https://github.com/pileofflapjacks1/neural-flow-architect && cd neural-flow-architect && pnpm install && pnpm dev"
     },
     {
       "id": "signal-sandbox",
+      "slug": null,
       "name": "Signal Sandbox",
       "shortDescription": "Placeholder training arena for discrete intention practice (move, select, confirm).",
       "category": "game",
       "status": "available",
       "action": "launch",
       "version": "0.1.0",
-      "tags": ["training", "placeholder", "game"]
+      "tags": ["training", "placeholder", "game", "local-only"],
+      "demoUrl": null,
+      "projectUrl": "https://neurabeach.com/collections/col-neura-suite",
+      "githubUrl": null,
+      "installHint": "Local NeuraconX example — no remote package yet."
     },
     {
       "id": "catalog-pulse",
+      "slug": null,
       "name": "Catalog Pulse",
       "shortDescription": "Lightweight status board for suite health checks and local endpoint reachability.",
       "category": "tool",
       "status": "beta",
       "action": "download",
       "version": "0.0.9",
-      "tags": ["ops", "placeholder"]
+      "tags": ["ops", "placeholder", "local-only"],
+      "demoUrl": null,
+      "projectUrl": "https://neurabeach.com",
+      "githubUrl": "https://github.com/pileofflapjacks1/NeuraconX",
+      "installHint": "git clone https://github.com/pileofflapjacks1/NeuraconX"
     },
     {
       "id": "mindmaze-lite",
+      "slug": null,
       "name": "MindMaze Lite",
       "shortDescription": "Example turn-based puzzle game designed for sparse intentions instead of continuous cursor control.",
       "category": "game",
       "status": "available",
       "action": "launch",
       "version": "0.1.0",
-      "tags": ["game", "example", "sparse-intent"]
+      "tags": ["game", "example", "sparse-intent", "local-only"],
+      "demoUrl": null,
+      "projectUrl": "https://neurabeach.com",
+      "githubUrl": null,
+      "installHint": "Local NeuraconX example — no remote package yet."
     },
     {
       "id": "intent-lab",
+      "slug": null,
       "name": "Intent Lab Notebook",
       "shortDescription": "Research notes workspace for logging intention sessions and reviewing confidence timelines.",
       "category": "research",
       "status": "coming_soon",
       "action": "download",
       "version": "0.0.1",
-      "tags": ["research", "logging"]
+      "tags": ["research", "logging", "local-only"],
+      "demoUrl": null,
+      "projectUrl": "https://neurabeach.com",
+      "githubUrl": null,
+      "installHint": "Coming soon — not available to connect yet."
     },
     {
       "id": "calm-focus",
+      "slug": null,
       "name": "Calm Focus",
       "shortDescription": "Minimal ambient focus timer driven by discrete start/hold/stop intentions.",
       "category": "tool",
       "status": "available",
       "action": "launch",
       "version": "0.1.0",
-      "tags": ["a11y", "focus", "example"]
+      "tags": ["a11y", "focus", "example", "local-only"],
+      "demoUrl": null,
+      "projectUrl": "https://neurabeach.com",
+      "githubUrl": null,
+      "installHint": "Local NeuraconX example — no remote package yet."
     },
     {
       "id": "gridwalker",
+      "slug": null,
       "name": "Gridwalker",
       "shortDescription": "Example grid-navigation game for validating move_up / move_down / select mappings.",
       "category": "game",
       "status": "beta",
       "action": "launch",
       "version": "0.2.0",
-      "tags": ["game", "navigation", "example"]
+      "tags": ["game", "navigation", "example", "local-only"],
+      "demoUrl": null,
+      "projectUrl": "https://neurabeach.com",
+      "githubUrl": null,
+      "installHint": "Local NeuraconX example — no remote package yet."
     }
   ]
 }

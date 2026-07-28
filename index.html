@@ -51,7 +51,10 @@
             role="toolbar"
             aria-label="Category filters"
           ></div>
-          <div id="highlight-meta" class="highlight-meta" aria-live="polite"></div>
+          <div class="toolbar-meta">
+            <div id="highlight-meta" class="highlight-meta" aria-live="polite"></div>
+            <div id="catalog-source-label" class="catalog-source muted">Catalog: —</div>
+          </div>
         </div>
 
         <div
@@ -74,7 +77,7 @@
           <kbd>Y</kbd> confirm (in dialog) ·
           <kbd>Esc</kbd> / <kbd>N</kbd> cancel ·
           click a card to select. Multi-step confirmation is required before any
-          simulated download or launch.
+          connect action (open demo, Neurabeach page, or repo).
         </div>
       </section>
 
@@ -84,7 +87,7 @@
           <div>
             <h2>Settings</h2>
             <p class="lede">
-              Tune simulator feel and confirmation strictness. Changes save
+              Tune simulator feel, catalog source, and NeuralBridge. Changes save
               locally in this browser.
             </p>
           </div>
@@ -92,6 +95,8 @@
             Back
           </button>
         </div>
+
+        <h3 class="settings-heading">Navigation &amp; safety</h3>
 
         <div class="field">
           <label for="setting-sensitivity">
@@ -119,9 +124,21 @@
             <option value="strict">Strict — 3 confirmation steps</option>
           </select>
           <p class="hint">
-            Safety first: at least two explicit confirms before any simulated
-            download or launch.
+            Safety first: at least two explicit confirms before any connect action.
           </p>
+        </div>
+
+        <div class="field-row">
+          <div>
+            <div class="switch">
+              <input id="setting-auto-open" type="checkbox" checked />
+              <label for="setting-auto-open">Auto-open primary URL on connect</label>
+            </div>
+            <p class="hint">
+              After final confirm, open the demo/repo/Beach page in a new tab.
+              Secondary buttons always remain available.
+            </p>
+          </div>
         </div>
 
         <div class="field-row">
@@ -144,6 +161,70 @@
           </div>
         </div>
 
+        <h3 class="settings-heading">Catalog</h3>
+
+        <div class="field-row">
+          <div>
+            <div class="switch">
+              <input id="setting-prefer-live" type="checkbox" checked />
+              <label for="setting-prefer-live">Prefer live Neurabeach catalog</label>
+            </div>
+            <p class="hint">
+              Tries <code>neurabeach.com/api/projects</code>, then falls back to the
+              bundled catalog if the network or CORS blocks the request.
+            </p>
+          </div>
+        </div>
+
+        <div class="field">
+          <button type="button" id="refresh-catalog" class="btn">
+            Refresh catalog now
+          </button>
+        </div>
+
+        <h3 class="settings-heading">Intention source</h3>
+
+        <div class="field">
+          <label for="setting-intention-source">Source</label>
+          <select id="setting-intention-source">
+            <option value="simulator">Simulator — keyboard / mouse only</option>
+            <option value="neuralbridge">NeuralBridge — local WebSocket + keyboard</option>
+          </select>
+          <p class="hint">
+            Keyboard always works as a fallback. NeuralBridge mode connects as an
+            observer to a local multi-client service (research only — not implant
+            hardware).
+          </p>
+        </div>
+
+        <div class="field">
+          <label for="setting-bridge-url">NeuralBridge WebSocket URL</label>
+          <input
+            id="setting-bridge-url"
+            type="text"
+            class="text-input"
+            value="ws://127.0.0.1:7711"
+            spellcheck="false"
+            autocomplete="off"
+          />
+          <p class="hint">
+            Default: <code>ws://127.0.0.1:7711</code> · start with
+            <code>npx neuralbridge serve --port 7711</code>
+          </p>
+        </div>
+
+        <div class="field">
+          <label for="setting-bridge-token">Bridge token (optional)</label>
+          <input
+            id="setting-bridge-token"
+            type="password"
+            class="text-input"
+            value=""
+            autocomplete="off"
+            placeholder="Only if service auth is enabled"
+          />
+        </div>
+
         <div style="margin-top: 1.25rem; display: flex; gap: 0.5rem; flex-wrap: wrap">
           <button type="button" id="reset-settings" class="btn">
             Reset feel defaults
@@ -160,7 +241,8 @@
           <div>
             <h2>Recent actions</h2>
             <p class="lede">
-              Local log of simulated downloads and launches on this device.
+              Local log of connect actions (open demo, Beach, repo, copy install)
+              on this device.
             </p>
           </div>
           <button type="button" id="close-history" class="btn btn-ghost">
@@ -236,7 +318,7 @@
       </div>
     </div>
 
-    <!-- Simulated action feedback -->
+    <!-- Connect action feedback -->
     <div
       id="action-panel"
       class="action-panel"
@@ -261,6 +343,7 @@
           Cancel
         </button>
       </div>
+      <div id="action-links" class="action-links" aria-label="Connect options"></div>
     </div>
 
     <div

@@ -5,6 +5,7 @@
 const STORAGE_KEY = "neuraconx.settings.v1";
 
 /** @typedef {'standard'|'strict'} ConfirmStrictness */
+/** @typedef {'simulator'|'neuralbridge'} IntentionSource */
 
 /**
  * @typedef {Object} AppSettings
@@ -15,6 +16,12 @@ const STORAGE_KEY = "neuraconx.settings.v1";
  * @property {boolean} disclaimerAccepted
  * @property {'all'|'tool'|'game'|'research'} categoryFilter
  * @property {'grid'|'list'} viewMode
+ * @property {boolean} preferLiveCatalog
+ * @property {string} liveCatalogUrl
+ * @property {IntentionSource} intentionSource
+ * @property {string} bridgeUrl
+ * @property {string} bridgeToken
+ * @property {boolean} autoOpenOnConnect
  */
 
 /** @returns {AppSettings} */
@@ -27,6 +34,12 @@ export function defaultSettings() {
     disclaimerAccepted: false,
     categoryFilter: "all",
     viewMode: "grid",
+    preferLiveCatalog: true,
+    liveCatalogUrl: "https://neurabeach.com/api/projects",
+    intentionSource: "simulator",
+    bridgeUrl: "ws://127.0.0.1:7711",
+    bridgeToken: "",
+    autoOpenOnConnect: true,
   };
 }
 
@@ -51,7 +64,6 @@ export function saveSettings(partial) {
 
 export function resetSettings() {
   const defaults = defaultSettings();
-  // Keep disclaimer accepted so we don't re-force modal on every reset of feel
   const prev = loadSettings();
   const next = {
     ...defaults,

@@ -1,20 +1,18 @@
 # NeuraconX
 
-**NeuraconX** is an **X-related**, intention-native catalog browser and download/launcher connector for the [Neurabeach](https://neurabeach.com) hub (Joe’s Neura suite).
+**NeuraconX** is an **X-related**, intention-native catalog browser and connector for the [Neurabeach](https://neurabeach.com) hub (Joe’s Neura suite).
 
 This is a **computer-side research and accessibility prototype**. It is **not** a medical device, **not** implant software, and **not affiliated with Neuralink**.
 
-## What it does (v1)
+## What it does
 
-1. Browse a placeholder catalog of Neurabeach suite tools, research apps, and example games  
-2. Navigate and highlight items with high-level **intentions** (or keyboard/mouse simulator)  
+1. Browse a **Neurabeach-aligned catalog** (live API when reachable, bundled fallback)  
+2. Navigate with high-level **intentions** (keyboard simulator and optional **NeuralBridge**)  
 3. **Select** an item  
-4. Complete a **multi-step confirmation** flow (2 steps standard, 3 in strict mode)  
-5. Run a **simulated** download or launch with progress feedback and a local history log  
+4. Complete a **multi-step confirmation** flow (2 steps standard, 3 strict)  
+5. **Connect for real**: open live demo, Neurabeach project page, GitHub, or copy install command  
 
 ## Quick start
-
-Serve the folder over HTTP (ES modules + `fetch` for catalog JSON):
 
 ```bash
 cd /Users/joe/Projects/NeuraconX
@@ -22,7 +20,7 @@ npx --yes serve .
 # or: python3 -m http.server 5173
 ```
 
-Open the URL shown (e.g. `http://localhost:3000`).
+Open the printed URL.
 
 ### Simulator controls
 
@@ -34,77 +32,68 @@ Open the URL shown (e.g. `http://localhost:3000`).
 | `Esc` / `N` / `Backspace` | `cancel` / `back` |
 | Click card | highlight + select |
 
+## Features
+
+### 1. Real connect outcomes
+After confirmation, NeuraconX opens the item’s **primary target**:
+- **Launch** items → live demo URL (new tab)
+- **Download** items → GitHub (or Beach page)
+- Secondary buttons: Open demo · Open on Neurabeach · Open GitHub · Copy install command
+
+### 2. Live Neurabeach catalog
+- Settings → **Prefer live Neurabeach catalog** (default on)
+- Fetches `https://neurabeach.com/api/projects`
+- On CORS/network failure → bundled `data/catalog.json` (suite URLs + example games)
+- Status line shows `catalog:live`, `catalog:merged`, or `catalog:local`
+
+### 3. Optional NeuralBridge intention source
+- Settings → Intention source → **NeuralBridge**
+- Default URL: `ws://127.0.0.1:7711`
+- Connects as protocol v2 **observer**
+- Maps bridge intentions (`click`, `select`, `confirm`, `scroll_up`, …) into NeuraconX
+- Keyboard remains available as fallback
+
+```bash
+# In the neuralbridge package:
+npx neuralbridge serve --port 7711
+```
+
 ## Project layout
 
 ```
 NeuraconX/
-├── index.html          # Shell UI
-├── css/styles.css      # Dark research-hub theme
-├── data/catalog.json   # Placeholder catalog (swap for live Neurabeach data)
+├── index.html
+├── css/styles.css
+├── data/catalog.json       # Offline fallback + local-only examples
 ├── js/
-│   ├── app.js          # Orchestrator: catalog → confirm → action
-│   ├── intentions.js   # Modular intention bus + keyboard simulator
-│   ├── catalog.js      # Load / filter helpers
-│   ├── confirmation.js # Multi-step safety copy + state machine
-│   ├── actions.js      # Simulated download/launch
-│   ├── settings.js     # localStorage settings
-│   └── history.js      # Recent actions log
+│   ├── app.js              # Orchestrator
+│   ├── intentions.js       # Intention bus + keyboard simulator
+│   ├── bridge.js           # NeuralBridge WebSocket adapter
+│   ├── catalog.js          # Local + live load / merge / connect targets
+│   ├── confirmation.js     # Multi-step safety copy
+│   ├── actions.js          # Open / copy connect actions
+│   ├── settings.js
+│   └── history.js
 └── README.md
 ```
 
 ## Intention layer
 
-High-level discrete intentions (easy to map from a future NeuralBridge stream):
-
-- `move_up` · `move_down` · `move_left` · `move_right`
-- `select` · `confirm` · `cancel` · `back`
-
-Core API (`js/intentions.js`):
-
 ```js
-import { createIntentionBus } from './js/intentions.js';
-
-const bus = createIntentionBus({ sensitivityMs: 140 });
-bus.attachKeyboardSimulator(window);
-bus.on('select', (e) => { /* ... */ });
-bus.emit({ type: 'move_right', confidence: 1, source: 'external' });
-
-// Future external adapter sketch:
-// bus.connectExternal({
-//   connect(emit) {
-//     const ws = new WebSocket('ws://127.0.0.1:7711');
-//     ws.onmessage = (m) => {
-//       const data = JSON.parse(m.data);
-//       if (data.type) emit({ ...data, source: 'neuralbridge' });
-//     };
-//     return () => ws.close();
-//   }
-// });
+// Console / external experiments
+window.NeuraconX.bus.emit({ type: 'move_right', confidence: 1, source: 'external' });
+window.NeuraconX.bridge.connect();
+window.NeuraconX.reloadCatalog();
 ```
 
-In the running app, the bus is also exposed as `window.NeuraconX.bus` for console experiments.
-
-## Settings
-
-- **Navigation sensitivity** — debounce for directional intentions  
-- **Confirmation strictness** — standard (2 steps) or strict (3 steps)  
-- **Intention flash** · **reduce motion** · **reset defaults**  
-- Category filter and grid/list view  
-
-Settings and history persist in `localStorage` on this origin (`neuraconx.*` keys).
+High-level intentions: `move_up` · `move_down` · `move_left` · `move_right` · `select` · `confirm` · `cancel` · `back`
 
 ## Safety stance
 
-- Confirmation language is explicit and multi-step **before** any action runs  
-- Downloads/launches are **local simulations** only (no remote package install)  
-- Persistent banner + first-load modal restate research/simulator limits  
-
-## Roadmap (not in v1)
-
-- Live Neurabeach API catalog  
-- Real NeuralBridge WebSocket backend  
-- Actual local package open/download paths  
-- Account systems / multi-user features  
+- Explicit multi-step confirmation **before** any open/copy  
+- No silent remote package install  
+- Persistent banner + first-load modal  
+- Bridge path is local research middleware only — not Neuralink  
 
 ## License
 

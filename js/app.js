@@ -1,6 +1,6 @@
 /**
  * NeuraconX application orchestrator.
- * Catalog → navigate (intentions/simulator) → select → multi-step confirm → simulated action.
+ * Catalog → navigate (intentions/simulator/bridge) → select → multi-step confirm → connect.
  */
 
 import { createIntentionBus, INTENTIONS } from "./intentions.js";
@@ -12,6 +12,7 @@ import {
   statusLabel,
   actionLabel,
   isActionable,
+  connectOptions,
 } from "./catalog.js";
 import {
   loadSettings,
@@ -25,8 +26,9 @@ import {
   cancelConfirmation,
   getStepContent,
 } from "./confirmation.js";
-import { startSimulatedAction } from "./actions.js";
+import { startConnectAction, executeConnectOption } from "./actions.js";
 import { loadHistory, clearHistory } from "./history.js";
+import { createNeuralBridgeAdapter } from "./bridge.js";
 
 /** @typedef {import('./catalog.js').CatalogItem} CatalogItem */
 /** @typedef {import('./confirmation.js').ConfirmSession} ConfirmSession */
@@ -49,10 +51,26 @@ const state = {
   /** @type {'catalog'|'settings'|'history'} */
   panel: "catalog",
   lastIntention: /** @type {string | null} */ (null),
+  catalogSource: /** @type {string} */ ("—"),
+  catalogDetail: "",
+  bridgeStatus: /** @type {string} */ ("disconnected"),
+  bridgeDetail: "",
 };
 
 const bus = createIntentionBus({
   sensitivityMs: state.settings.sensitivityMs,
+});
+
+const bridge = createNeuralBridgeAdapter({
+  emit: (e) => bus.emit(e),
+  url: state.settings.bridgeUrl,
+  token: state.settings.bridgeToken,
+  clientName: "NeuraconX",
+  onStatus: (status, detail) => {
+    state.bridgeStatus = status;
+    state.bridgeDetail = detail || "";
+    updateStatusPill();
+  },
 });
 
 // ── DOM refs ──────────────────────────────────────────────────────────────
@@ -76,6 +94,7 @@ const els = {
   actionProgress: $("#action-progress"),
   actionBar: $("#action-bar"),
   actionCancel: $("#action-cancel"),
+  actionLinks: $("#action-links"),
   historyList: $("#history-list"),
   settingsPanel: $("#settings-panel"),
   catalogPanel: $("#catalog-panel"),
@@ -94,10 +113,17 @@ const els = {
   strictness: $("#setting-strictness"),
   showFlash: $("#setting-show-flash"),
   reduceMotion: $("#setting-reduce-motion"),
+  preferLive: $("#setting-prefer-live"),
+  autoOpen: $("#setting-auto-open"),
+  intentionSource: $("#setting-intention-source"),
+  bridgeUrl: $("#setting-bridge-url"),
+  bridgeToken: $("#setting-bridge-token"),
+  refreshCatalog: $("#refresh-catalog"),
   resetSettingsBtn: $("#reset-settings"),
   clearHistoryBtn: $("#clear-history"),
   emptyState: $("#empty-state"),
   helpKeys: $("#help-keys"),
+  catalogSourceLabel: $("#catalog-source-label"),
 };
 
 // ── Bootstrap ─────────────────────────────────────────────────────────────
@@ -116,11 +142,30 @@ async function init() {
   state.columns = gridColumnsForWidth(window.innerWidth);
 
   showDisclaimerIfNeeded();
+  await reloadCatalog();
+  applyIntentionSource();
+  renderHistory();
+  syncSettingsForm();
+  updateStatusPill();
+}
 
+async function reloadCatalog() {
   try {
-    state.allItems = await loadCatalog();
+    setStatus("Loading catalog…");
+    const result = await loadCatalog({
+      preferLive: state.settings.preferLiveCatalog,
+      liveUrl: state.settings.liveCatalogUrl,
+    });
+    state.allItems = result.items;
+    state.catalogSource = result.source;
+    state.catalogDetail = result.detail || "";
     applyFilter(state.settings.categoryFilter);
-    setStatus("Simulator ready · keyboard active");
+    if (els.catalogSourceLabel) {
+      els.catalogSourceLabel.textContent = `Catalog: ${result.source}${
+        result.detail ? ` · ${result.detail}` : ""
+      }`;
+    }
+    updateStatusPill();
   } catch (err) {
     console.error(err);
     setStatus("Catalog failed to load");
@@ -128,9 +173,19 @@ async function init() {
       els.catalogGrid.innerHTML = `<p class="error-block">Could not load catalog. Serve this folder over HTTP (e.g. <code>npx serve .</code>) so <code>data/catalog.json</code> can be fetched.</p>`;
     }
   }
+}
 
-  renderHistory();
-  syncSettingsForm();
+function applyIntentionSource() {
+  bridge.configure({
+    url: state.settings.bridgeUrl,
+    token: state.settings.bridgeToken,
+  });
+  if (state.settings.intentionSource === "neuralbridge") {
+    bridge.connect();
+  } else {
+    bridge.disconnect();
+  }
+  updateStatusPill();
 }
 
 // ── Intention routing ─────────────────────────────────────────────────────
@@ -142,7 +197,6 @@ function handleIntention(event) {
   state.lastIntention = event.type;
   flashIntention(event);
 
-  // Disclaimer modal captures focus until accepted
   if (!state.settings.disclaimerAccepted) {
     if (
       event.type === INTENTIONS.SELECT ||
@@ -153,7 +207,6 @@ function handleIntention(event) {
     return;
   }
 
-  // Action running: only cancel
   if (state.actionRun?.status === "running") {
     if (
       event.type === INTENTIONS.CANCEL ||
@@ -164,13 +217,27 @@ function handleIntention(event) {
     return;
   }
 
-  // Confirmation flow
+  // When action panel is open with success options, select dismisses
+  if (
+    state.actionRun &&
+    state.actionRun.status !== "running" &&
+    els.actionPanel?.classList.contains("is-open")
+  ) {
+    if (
+      event.type === INTENTIONS.CANCEL ||
+      event.type === INTENTIONS.BACK ||
+      event.type === INTENTIONS.SELECT
+    ) {
+      dismissActionPanel();
+    }
+    return;
+  }
+
   if (state.confirm?.active) {
     routeConfirmIntention(event.type);
     return;
   }
 
-  // Settings / history panels: limited routing
   if (state.panel === "settings") {
     if (event.type === INTENTIONS.CANCEL || event.type === INTENTIONS.BACK) {
       showPanel("catalog");
@@ -184,7 +251,6 @@ function handleIntention(event) {
     return;
   }
 
-  // Catalog navigation
   switch (event.type) {
     case INTENTIONS.MOVE_UP:
       moveHighlight(0, -1);
@@ -204,7 +270,6 @@ function handleIntention(event) {
       break;
     case INTENTIONS.CANCEL:
     case INTENTIONS.BACK:
-      // no-op at catalog root
       break;
     default:
       break;
@@ -278,7 +343,6 @@ function openConfirmation(item) {
   renderConfirmation();
   els.confirmOverlay?.classList.add("is-open");
   els.confirmOverlay?.setAttribute("aria-hidden", "false");
-  // Focus primary for mouse users; keyboard uses intention bus
   els.confirmPrimary?.focus();
   setStatus(`Confirmation open · ${item.name}`);
 }
@@ -307,8 +371,7 @@ function onConfirmPrimary() {
 
 function onConfirmSecondary() {
   closeConfirmation();
-  setStatus("Action cancelled — no download or launch was started");
-  renderHistory(); // in case we log cancels later
+  setStatus("Cancelled — no connect action was started");
 }
 
 function renderConfirmation() {
@@ -344,6 +407,15 @@ function renderConfirmation() {
 /** @type {ReturnType<typeof setTimeout> | null} */
 let actionDismissTimer = null;
 
+function dismissActionPanel() {
+  if (actionDismissTimer) {
+    clearTimeout(actionDismissTimer);
+    actionDismissTimer = null;
+  }
+  els.actionPanel?.classList.remove("is-open");
+  if (els.actionLinks) els.actionLinks.innerHTML = "";
+}
+
 /** @param {CatalogItem} item */
 function beginAction(item) {
   if (actionDismissTimer) {
@@ -351,27 +423,31 @@ function beginAction(item) {
     actionDismissTimer = null;
   }
   els.actionPanel?.classList.add("is-open");
-  state.actionRun = startSimulatedAction(item, (run) => {
-    state.actionRun = run;
-    renderAction(run);
-    if (run.status !== "running") {
-      renderHistory();
-      if (run.status === "success") {
-        setStatus(
-          run.kind === "launch"
-            ? `Launch simulation finished · ${item.name}`
-            : `Download simulation finished · ${item.name}`
-        );
-      } else if (run.status === "cancelled") {
-        setStatus("Simulated action cancelled");
+  if (els.actionLinks) els.actionLinks.innerHTML = "";
+
+  state.actionRun = startConnectAction(
+    item,
+    (run) => {
+      state.actionRun = run;
+      renderAction(run);
+      if (run.status !== "running") {
+        renderHistory();
+        renderActionLinks(run);
+        if (run.status === "success") {
+          setStatus(`Connected · ${item.name}`);
+        } else if (run.status === "cancelled") {
+          setStatus("Connect cancelled");
+        } else if (run.status === "failed") {
+          setStatus(`Connect failed · ${item.name}`);
+        }
+        // Keep panel open longer so user can use secondary links
+        actionDismissTimer = setTimeout(() => {
+          dismissActionPanel();
+        }, run.status === "success" ? 12000 : 2200);
       }
-      // Keep success/cancel feedback visible briefly, then free the UI
-      actionDismissTimer = setTimeout(() => {
-        els.actionPanel?.classList.remove("is-open");
-        actionDismissTimer = null;
-      }, run.status === "success" ? 2800 : 1600);
-    }
-  });
+    },
+    { autoOpen: state.settings.autoOpenOnConnect }
+  );
 }
 
 /** @param {ActionRun} run */
@@ -379,9 +455,9 @@ function renderAction(run) {
   if (!els.actionPanel) return;
   if (els.actionTitle) {
     els.actionTitle.textContent =
-      run.kind === "launch"
-        ? `Simulated launch · ${run.item.name}`
-        : `Simulated download · ${run.item.name}`;
+      run.status === "success"
+        ? `Connected · ${run.item.name}`
+        : `Connecting · ${run.item.name}`;
   }
   if (els.actionMessage) els.actionMessage.textContent = run.message;
   if (els.actionBar) {
@@ -398,6 +474,27 @@ function renderAction(run) {
     els.actionCancel.hidden = run.status !== "running";
   }
   els.actionPanel.dataset.status = run.status;
+}
+
+/** @param {ActionRun} run */
+function renderActionLinks(run) {
+  if (!els.actionLinks) return;
+  const options =
+    run.options && run.options.length
+      ? run.options
+      : connectOptions(run.item);
+  if (!options.length || run.status === "cancelled") {
+    els.actionLinks.innerHTML = "";
+    return;
+  }
+  els.actionLinks.innerHTML = options
+    .map(
+      (o) =>
+        `<button type="button" class="btn btn-sm" data-connect-id="${escapeAttr(
+          o.id
+        )}">${escapeHtml(o.label)}</button>`
+    )
+    .join("");
 }
 
 // ── Catalog render ────────────────────────────────────────────────────────
@@ -451,6 +548,10 @@ function renderCatalog() {
     .map((item, i) => {
       const highlighted = i === state.highlightIndex;
       const actionable = isActionable(item);
+      const links = [];
+      if (item.demoUrl) links.push("demo");
+      if (item.projectUrl) links.push("beach");
+      if (item.githubUrl) links.push("repo");
       return `
         <article
           class="card${highlighted ? " is-highlighted" : ""}${
@@ -478,7 +579,13 @@ function renderCatalog() {
           <footer class="card-footer">
             <span class="card-version">v${escapeHtml(
               item.version ?? "—"
-            )}</span>
+            )}${
+              links.length
+                ? ` · <span class="card-links">${escapeHtml(
+                    links.join(" · ")
+                  )}</span>`
+                : ""
+            }</span>
             <span class="card-action">${actionLabel(item)}</span>
           </footer>
         </article>
@@ -498,14 +605,17 @@ function updateHighlightMeta() {
     item.name
   )}</strong> · ${categoryLabel(item.category)} · ${statusLabel(
     item.status
-  )} · <span class="muted">Press Enter / Space to select</span>`;
+  )} · <span class="muted">${escapeHtml(actionLabel(item))} · Enter to select</span>`;
 }
 
 function scrollHighlightIntoView() {
   const el = els.catalogGrid?.querySelector(
     `.card[data-index="${state.highlightIndex}"]`
   );
-  el?.scrollIntoView({ block: "nearest", behavior: state.settings.reduceMotion ? "auto" : "smooth" });
+  el?.scrollIntoView({
+    block: "nearest",
+    behavior: state.settings.reduceMotion ? "auto" : "smooth",
+  });
 }
 
 /**
@@ -527,7 +637,7 @@ function renderHistory() {
   const list = loadHistory();
   if (list.length === 0) {
     els.historyList.innerHTML =
-      '<p class="muted empty-note">No actions yet. Select a catalog item and complete confirmation to log a simulated download or launch.</p>';
+      '<p class="muted empty-note">No actions yet. Select a catalog item and complete confirmation to connect (open demo, Beach page, or repo).</p>';
     return;
   }
   els.historyList.innerHTML = list
@@ -568,6 +678,21 @@ function syncSettingsForm() {
   if (els.reduceMotion) {
     els.reduceMotion.checked = state.settings.reduceMotion;
   }
+  if (els.preferLive) {
+    els.preferLive.checked = state.settings.preferLiveCatalog;
+  }
+  if (els.autoOpen) {
+    els.autoOpen.checked = state.settings.autoOpenOnConnect;
+  }
+  if (els.intentionSource) {
+    els.intentionSource.value = state.settings.intentionSource;
+  }
+  if (els.bridgeUrl) {
+    els.bridgeUrl.value = state.settings.bridgeUrl;
+  }
+  if (els.bridgeToken) {
+    els.bridgeToken.value = state.settings.bridgeToken;
+  }
   if (els.viewToggle) {
     els.viewToggle.setAttribute(
       "aria-pressed",
@@ -576,6 +701,8 @@ function syncSettingsForm() {
     els.viewToggle.textContent =
       state.settings.viewMode === "list" ? "Grid view" : "List view";
   }
+  document.body.dataset.bridgeMode =
+    state.settings.intentionSource === "neuralbridge" ? "on" : "off";
 }
 
 /** @param {'catalog'|'settings'|'history'} panel */
@@ -604,7 +731,7 @@ function showDisclaimerIfNeeded() {
 function onAcceptDisclaimer() {
   state.settings = acceptDisclaimer();
   showDisclaimerIfNeeded();
-  setStatus("Simulator ready · keyboard active");
+  updateStatusPill();
 }
 
 // ── Chrome bindings (mouse) ───────────────────────────────────────────────
@@ -624,7 +751,6 @@ function bindChrome() {
     state.highlightIndex = index;
     renderCatalog();
     updateHighlightMeta();
-    // Single click = highlight; double-click / action button feel via select intent
     trySelectHighlighted();
   });
 
@@ -640,6 +766,24 @@ function bindChrome() {
 
   els.actionCancel?.addEventListener("click", () => {
     state.actionRun?.cancel?.();
+  });
+
+  els.actionLinks?.addEventListener("click", async (e) => {
+    const btn = /** @type {HTMLElement} */ (e.target).closest(
+      "[data-connect-id]"
+    );
+    if (!btn || !state.actionRun) return;
+    const id = btn.getAttribute("data-connect-id");
+    const options =
+      state.actionRun.options || connectOptions(state.actionRun.item);
+    const option = options.find((o) => o.id === id);
+    if (!option) return;
+    if (actionDismissTimer) {
+      clearTimeout(actionDismissTimer);
+      actionDismissTimer = setTimeout(() => dismissActionPanel(), 10000);
+    }
+    const result = await executeConnectOption(option);
+    setStatus(result.message);
   });
 
   els.disclaimerAccept?.addEventListener("click", () => onAcceptDisclaimer());
@@ -679,12 +823,49 @@ function bindChrome() {
     applyMotionPreference();
   });
 
-  els.resetSettingsBtn?.addEventListener("click", () => {
+  els.preferLive?.addEventListener("change", async () => {
+    state.settings = saveSettings({
+      preferLiveCatalog: els.preferLive.checked,
+    });
+    await reloadCatalog();
+  });
+
+  els.autoOpen?.addEventListener("change", () => {
+    state.settings = saveSettings({
+      autoOpenOnConnect: els.autoOpen.checked,
+    });
+  });
+
+  els.intentionSource?.addEventListener("change", () => {
+    state.settings = saveSettings({
+      intentionSource: /** @type {any} */ (els.intentionSource.value),
+    });
+    applyIntentionSource();
+    syncSettingsForm();
+  });
+
+  els.bridgeUrl?.addEventListener("change", () => {
+    state.settings = saveSettings({ bridgeUrl: els.bridgeUrl.value.trim() });
+    applyIntentionSource();
+  });
+
+  els.bridgeToken?.addEventListener("change", () => {
+    state.settings = saveSettings({ bridgeToken: els.bridgeToken.value });
+    applyIntentionSource();
+  });
+
+  els.refreshCatalog?.addEventListener("click", async () => {
+    await reloadCatalog();
+    setStatus("Catalog refreshed");
+  });
+
+  els.resetSettingsBtn?.addEventListener("click", async () => {
     state.settings = resetSettings();
     bus.configure({ sensitivityMs: state.settings.sensitivityMs });
     applyMotionPreference();
     syncSettingsForm();
-    applyFilter(state.settings.categoryFilter);
+    applyIntentionSource();
+    await reloadCatalog();
     setStatus("Settings reset to defaults");
   });
 
@@ -707,6 +888,29 @@ function applyMotionPreference() {
 /** @param {string} text */
 function setStatus(text) {
   if (els.statusPill) els.statusPill.textContent = text;
+}
+
+function updateStatusPill() {
+  if (!els.statusPill) return;
+  const parts = [];
+  if (state.settings.intentionSource === "neuralbridge") {
+    const b =
+      state.bridgeStatus === "connected"
+        ? "Bridge connected"
+        : state.bridgeStatus === "connecting"
+          ? "Bridge connecting…"
+          : state.bridgeStatus === "error"
+            ? "Bridge error"
+            : "Bridge off";
+    parts.push(b);
+  } else {
+    parts.push("Simulator · keyboard");
+  }
+  if (state.catalogSource && state.catalogSource !== "—") {
+    parts.push(`catalog:${state.catalogSource}`);
+  }
+  els.statusPill.textContent = parts.join(" · ");
+  els.statusPill.dataset.bridge = state.bridgeStatus;
 }
 
 /**
@@ -733,11 +937,16 @@ function escapeAttr(str) {
   return escapeHtml(str).replace(/'/g, "&#39;");
 }
 
-// Expose bus for console / future external adapters
 window.NeuraconX = {
   bus,
+  bridge,
   INTENTIONS,
-  getState: () => ({ ...state, confirm: state.confirm, actionRun: state.actionRun }),
+  reloadCatalog,
+  getState: () => ({
+    ...state,
+    confirm: state.confirm,
+    actionRun: state.actionRun,
+  }),
 };
 
 init();
