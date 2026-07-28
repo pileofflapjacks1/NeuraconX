@@ -1,5 +1,5 @@
 /**
- * Multi-step safety confirmation flow.
+ * NeuraconX — multi-step safety confirmation flow.
  *
  * Standard: 2 explicit steps before any download/launch is triggered.
  * Strict: 3 steps (adds a final “I understand this is irreversible in this session” gate).
@@ -96,7 +96,7 @@ export function getStepContent(session) {
   // Strict step 3
   return {
     title: `Step 3 of ${totalSteps}: Final safety gate (strict mode)`,
-    body: `Strict confirmation is enabled.\n\nFinal check: you are authorizing a simulated ${actionNoun} of “${name}”.\n\nNeuraConnect is a research/accessibility prototype only. It is not a medical device and is not affiliated with Neuralink.\n\nProceed with the simulated ${actionNoun}?`,
+    body: `Strict confirmation is enabled.\n\nFinal check: you are authorizing a simulated ${actionNoun} of “${name}”.\n\nNeuraconX is a research/accessibility prototype only. It is not a medical device and is not affiliated with Neuralink.\n\nProceed with the simulated ${actionNoun}?`,
     primaryLabel: `Final confirm — ${actionVerb} ${name}`,
     secondaryLabel: "Abort",
     tone: "strict",

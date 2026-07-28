@@ -1,6 +1,6 @@
-# NeuraConnect (NeuraconX)
+# NeuraconX
 
-**Intention-native catalog browser and download/launcher connector** for the [Neurabeach](https://neurabeach.com) hub.
+**NeuraconX** is an **X-related**, intention-native catalog browser and download/launcher connector for the [Neurabeach](https://neurabeach.com) hub (Joe’s Neura suite).
 
 This is a **computer-side research and accessibility prototype**. It is **not** a medical device, **not** implant software, and **not affiliated with Neuralink**.
 
@@ -82,7 +82,7 @@ bus.emit({ type: 'move_right', confidence: 1, source: 'external' });
 // });
 ```
 
-In the running app, the bus is also exposed as `window.NeuraConnect.bus` for console experiments.
+In the running app, the bus is also exposed as `window.NeuraconX.bus` for console experiments.
 
 ## Settings
 
@@ -91,7 +91,7 @@ In the running app, the bus is also exposed as `window.NeuraConnect.bus` for con
 - **Intention flash** · **reduce motion** · **reset defaults**  
 - Category filter and grid/list view  
 
-Settings and history persist in `localStorage` on this origin.
+Settings and history persist in `localStorage` on this origin (`neuraconx.*` keys).
 
 ## Safety stance
 

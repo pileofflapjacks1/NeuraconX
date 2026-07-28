@@ -1,12 +1,13 @@
 /**
- * NeuraConnect — Intention layer
+ * NeuraconX — Intention layer
  *
  * High-level discrete intentions only. Keyboard/mouse simulator maps into
  * this bus today; a future NeuralBridge (or other) stream can emit the same
  * IntentionEvent shapes without changing the rest of the app.
  *
- * This is a research / accessibility prototype interface.
- * It does not decode neural signals and is not affiliated with Neuralink.
+ * This is a research / accessibility prototype interface for the X-related
+ * NeuraconX app. It does not decode neural signals and is not affiliated
+ * with Neuralink.
  */
 
 /** @typedef {'move_up'|'move_down'|'move_left'|'move_right'|'select'|'confirm'|'cancel'|'back'} IntentionType */

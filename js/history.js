@@ -2,7 +2,7 @@
  * Recent actions log (session + optional localStorage).
  */
 
-const STORAGE_KEY = "neuraconnect.history.v1";
+const STORAGE_KEY = "neuraconx.history.v1";
 const MAX_ENTRIES = 40;
 
 /**

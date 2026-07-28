@@ -1,5 +1,5 @@
 /**
- * NeuraConnect application orchestrator.
+ * NeuraconX application orchestrator.
  * Catalog → navigate (intentions/simulator) → select → multi-step confirm → simulated action.
  */
 
@@ -734,7 +734,7 @@ function escapeAttr(str) {
 }
 
 // Expose bus for console / future external adapters
-window.NeuraConnect = {
+window.NeuraconX = {
   bus,
   INTENTIONS,
   getState: () => ({ ...state, confirm: state.confirm, actionRun: state.actionRun }),

@@ -1,5 +1,5 @@
 /**
- * Catalog loading + filtering.
+ * NeuraconX — catalog loading + filtering.
  * Placeholder data lives in data/catalog.json and can be swapped for Neurabeach API later.
  */
 

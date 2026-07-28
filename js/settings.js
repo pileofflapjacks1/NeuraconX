@@ -1,8 +1,8 @@
 /**
- * NeuraConnect settings — persisted in localStorage.
+ * NeuraconX settings — persisted in localStorage.
  */
 
-const STORAGE_KEY = "neuraconnect.settings.v1";
+const STORAGE_KEY = "neuraconx.settings.v1";
 
 /** @typedef {'standard'|'strict'} ConfirmStrictness */
 

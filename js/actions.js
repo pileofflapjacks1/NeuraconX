@@ -1,5 +1,5 @@
 /**
- * Simulated download / launch actions.
+ * NeuraconX — simulated download / launch actions.
  * No real network downloads; progress is local and deterministic.
  */
 
