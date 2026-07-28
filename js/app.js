@@ -46,6 +46,12 @@ const state = {
   settings: loadSettings(),
   /** @type {ConfirmSession | null} */
   confirm: null,
+  /**
+   * Which confirm-dialog action is intention-highlighted.
+   * Arrows move between choices; select activates the highlight.
+   * @type {'primary'|'secondary'}
+   */
+  confirmFocus: "primary",
   /** @type {ActionRun | null} */
   actionRun: null,
   /** @type {'catalog'|'settings'|'history'} */
@@ -276,13 +282,58 @@ function handleIntention(event) {
   }
 }
 
-/** @param {string} type */
+/**
+ * Confirm dialog uses the same intention vocabulary as the catalog:
+ * - move_* switches between Cancel and Confirm (like catalog highlight)
+ * - select activates the highlighted choice
+ * - confirm (Y) always means the affirmative action
+ * - cancel / back always aborts (safety)
+ * @param {string} type
+ */
 function routeConfirmIntention(type) {
-  if (type === INTENTIONS.CONFIRM || type === INTENTIONS.SELECT) {
-    onConfirmPrimary();
-  } else if (type === INTENTIONS.CANCEL || type === INTENTIONS.BACK) {
-    onConfirmSecondary();
+  switch (type) {
+    case INTENTIONS.MOVE_LEFT:
+    case INTENTIONS.MOVE_UP:
+      state.confirmFocus = "secondary";
+      renderConfirmFocus();
+      setStatus("Confirm dialog · Cancel highlighted");
+      break;
+    case INTENTIONS.MOVE_RIGHT:
+    case INTENTIONS.MOVE_DOWN:
+      state.confirmFocus = "primary";
+      renderConfirmFocus();
+      setStatus("Confirm dialog · Confirm highlighted");
+      break;
+    case INTENTIONS.SELECT:
+      // Same as catalog: select the current highlight
+      if (state.confirmFocus === "secondary") {
+        onConfirmSecondary();
+      } else {
+        onConfirmPrimary();
+      }
+      break;
+    case INTENTIONS.CONFIRM:
+      // Explicit "yes" intention always advances
+      state.confirmFocus = "primary";
+      renderConfirmFocus();
+      onConfirmPrimary();
+      break;
+    case INTENTIONS.CANCEL:
+    case INTENTIONS.BACK:
+      onConfirmSecondary();
+      break;
+    default:
+      break;
   }
+}
+
+function renderConfirmFocus() {
+  const primary = state.confirmFocus === "primary";
+  els.confirmPrimary?.classList.toggle("is-intent-focus", primary);
+  els.confirmSecondary?.classList.toggle("is-intent-focus", !primary);
+  // Keep DOM focus in sync for screen readers / Enter without our bus
+  const el = primary ? els.confirmPrimary : els.confirmSecondary;
+  el?.focus({ preventScroll: true });
 }
 
 // ── Navigation ────────────────────────────────────────────────────────────
@@ -340,11 +391,15 @@ function trySelectHighlighted() {
 /** @param {CatalogItem} item */
 function openConfirmation(item) {
   state.confirm = startConfirmation(item, state.settings.confirmStrictness);
+  // Default highlight on the affirmative action; user can arrow to Cancel
+  state.confirmFocus = "primary";
   renderConfirmation();
   els.confirmOverlay?.classList.add("is-open");
   els.confirmOverlay?.setAttribute("aria-hidden", "false");
-  els.confirmPrimary?.focus();
-  setStatus(`Confirmation open · ${item.name}`);
+  renderConfirmFocus();
+  setStatus(
+    `Confirmation open · ${item.name} · ←/→ switch · Enter select · Esc cancel`
+  );
 }
 
 function closeConfirmation() {
@@ -352,6 +407,9 @@ function closeConfirmation() {
     state.confirm = cancelConfirmation(state.confirm);
   }
   state.confirm = null;
+  state.confirmFocus = "primary";
+  els.confirmPrimary?.classList.remove("is-intent-focus");
+  els.confirmSecondary?.classList.remove("is-intent-focus");
   els.confirmOverlay?.classList.remove("is-open");
   els.confirmOverlay?.setAttribute("aria-hidden", "true");
 }
@@ -365,7 +423,13 @@ function onConfirmPrimary() {
     closeConfirmation();
     beginAction(item);
   } else {
+    // Next confirm step: keep focus on primary so user can keep Enter-ing
+    state.confirmFocus = "primary";
     renderConfirmation();
+    renderConfirmFocus();
+    setStatus(
+      `Confirm step ${session.step} of ${session.totalSteps} · Enter to continue · Esc cancel`
+    );
   }
 }
 
@@ -400,6 +464,7 @@ function renderConfirmation() {
   }
 
   els.confirmDialog?.setAttribute("data-tone", content.tone);
+  renderConfirmFocus();
 }
 
 // ── Actions ───────────────────────────────────────────────────────────────

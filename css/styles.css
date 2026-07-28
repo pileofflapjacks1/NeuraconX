@@ -831,6 +831,25 @@ a {
   background: var(--success);
 }
 
+.dialog-hint {
+  margin: 0 0 0.85rem;
+  font-size: 0.8rem;
+}
+
+.dialog-hint kbd {
+  display: inline-block;
+  min-width: 1.3em;
+  padding: 0.1rem 0.35rem;
+  margin: 0 0.08rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-light);
+  background: var(--elevated);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--fg);
+  text-align: center;
+}
+
 .dialog-actions {
   display: flex;
   flex-wrap: wrap;
@@ -840,6 +859,18 @@ a {
 
 .dialog-actions .btn {
   min-width: 140px;
+}
+
+/* Intention highlight inside confirm dialog (matches catalog card focus) */
+.dialog-actions .btn.is-intent-focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), 0 0 20px rgba(29, 155, 240, 0.2);
+  position: relative;
+}
+
+.dialog-actions .btn.is-intent-focus:not(.btn-accent) {
+  background: var(--accent-dim);
+  color: var(--fg);
 }
 
 .disclaimer-list {

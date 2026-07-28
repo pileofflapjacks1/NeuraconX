@@ -71,10 +71,12 @@
 
         <div id="help-keys" class="help-keys">
           <strong style="color: var(--fg)">Simulator controls</strong>
+          (keyboard stands in for high-level intentions)
           —
-          <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> move highlight ·
-          <kbd>Enter</kbd> / <kbd>Space</kbd> select ·
-          <kbd>Y</kbd> confirm (in dialog) ·
+          <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> move highlight
+          (catalog <em>and</em> confirm buttons) ·
+          <kbd>Enter</kbd> / <kbd>Space</kbd> select highlighted choice ·
+          <kbd>Y</kbd> confirm ·
           <kbd>Esc</kbd> / <kbd>N</kbd> cancel ·
           click a card to select. Multi-step confirmation is required before any
           connect action (open demo, Neurabeach page, or repo).
@@ -307,6 +309,10 @@
         <div id="confirm-steps" class="step-dots" aria-hidden="true"></div>
         <h2 id="confirm-title">Confirm</h2>
         <p id="confirm-body" class="dialog-body"></p>
+        <p class="dialog-hint muted">
+          <kbd>←</kbd><kbd>→</kbd> switch · <kbd>Enter</kbd> select ·
+          <kbd>Esc</kbd> cancel
+        </p>
         <div class="dialog-actions">
           <button type="button" id="confirm-secondary" class="btn">
             Cancel
