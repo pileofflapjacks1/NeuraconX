@@ -7,7 +7,7 @@ This is a **computer-side research and accessibility prototype**. It is **not** 
 ## What it does
 
 1. Browse a **Neurabeach-aligned catalog** (live API when reachable, bundled fallback)  
-2. Navigate with high-level **intentions** (keyboard simulator and optional **NeuralBridge**)  
+2. Navigate with high-level **intentions** (keyboard simulator and optional **Neurabridge**)  
 3. **Select** an item  
 4. Complete a **multi-step confirmation** flow (2 steps standard, 3 strict)  
 5. **Connect for real**: open live demo, Neurabeach project page, GitHub, or copy install command  
@@ -46,16 +46,16 @@ After confirmation, NeuraconX opens the item’s **primary target**:
 - On CORS/network failure → bundled `data/catalog.json` (suite URLs + example games)
 - Status line shows `catalog:live`, `catalog:merged`, or `catalog:local`
 
-### 3. Optional NeuralBridge intention source
-- Settings → Intention source → **NeuralBridge**
+### 3. Optional Neurabridge intention source
+- Settings → Intention source → **Neurabridge**
 - Default URL: `ws://127.0.0.1:7711`
 - Connects as protocol v2 **observer**
 - Maps bridge intentions (`click`, `select`, `confirm`, `scroll_up`, …) into NeuraconX
 - Keyboard remains available as fallback
 
 ```bash
-# In the neuralbridge package:
-npx neuralbridge serve --port 7711
+# In the neurabridge package:
+npx neurabridge serve --port 7711
 ```
 
 ## Project layout
@@ -68,7 +68,7 @@ NeuraconX/
 ├── js/
 │   ├── app.js              # Orchestrator
 │   ├── intentions.js       # Intention bus + keyboard simulator
-│   ├── bridge.js           # NeuralBridge WebSocket adapter
+│   ├── bridge.js           # Neurabridge WebSocket adapter
 │   ├── catalog.js          # Local + live load / merge / connect targets
 │   ├── confirmation.js     # Multi-step safety copy
 │   ├── actions.js          # Open / copy connect actions

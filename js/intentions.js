@@ -2,7 +2,7 @@
  * NeuraconX — Intention layer
  *
  * High-level discrete intentions only. Keyboard/mouse simulator maps into
- * this bus today; a future NeuralBridge (or other) stream can emit the same
+ * this bus today; a future Neurabridge (or other) stream can emit the same
  * IntentionEvent shapes without changing the rest of the app.
  *
  * This is a research / accessibility prototype interface for the X-related
@@ -56,7 +56,7 @@ export function createIntentionBus(options = {}) {
   /** @type {Map<string, number>} */
   const lastAccepted = new Map();
 
-  /** Optional external source (WebSocket, EventSource, NeuralBridge, …). */
+  /** Optional external source (WebSocket, EventSource, Neurabridge, …). */
   /** @type {null | { disconnect: () => void }} */
   let externalSource = null;
 
@@ -220,7 +220,7 @@ export function createIntentionBus(options = {}) {
    *       const ws = new WebSocket('ws://127.0.0.1:7711');
    *       ws.onmessage = (m) => {
    *         const data = JSON.parse(m.data);
-   *         if (data.type) emit({ ...data, source: 'neuralbridge' });
+   *         if (data.type) emit({ ...data, source: 'neurabridge' });
    *       };
    *       return () => ws.close();
    *     }

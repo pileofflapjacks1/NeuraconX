@@ -28,7 +28,7 @@ import {
 } from "./confirmation.js";
 import { startConnectAction, executeConnectOption } from "./actions.js";
 import { loadHistory, clearHistory } from "./history.js";
-import { createNeuralBridgeAdapter } from "./bridge.js";
+import { createNeurabridgeAdapter } from "./bridge.js";
 
 /** @typedef {import('./catalog.js').CatalogItem} CatalogItem */
 /** @typedef {import('./confirmation.js').ConfirmSession} ConfirmSession */
@@ -67,7 +67,7 @@ const bus = createIntentionBus({
   sensitivityMs: state.settings.sensitivityMs,
 });
 
-const bridge = createNeuralBridgeAdapter({
+const bridge = createNeurabridgeAdapter({
   emit: (e) => bus.emit(e),
   url: state.settings.bridgeUrl,
   token: state.settings.bridgeToken,
@@ -186,7 +186,7 @@ function applyIntentionSource() {
     url: state.settings.bridgeUrl,
     token: state.settings.bridgeToken,
   });
-  if (state.settings.intentionSource === "neuralbridge") {
+  if (state.settings.intentionSource === "neurabridge") {
     bridge.connect();
   } else {
     bridge.disconnect();
@@ -767,7 +767,7 @@ function syncSettingsForm() {
       state.settings.viewMode === "list" ? "Grid view" : "List view";
   }
   document.body.dataset.bridgeMode =
-    state.settings.intentionSource === "neuralbridge" ? "on" : "off";
+    state.settings.intentionSource === "neurabridge" ? "on" : "off";
 }
 
 /** @param {'catalog'|'settings'|'history'} panel */
@@ -958,7 +958,7 @@ function setStatus(text) {
 function updateStatusPill() {
   if (!els.statusPill) return;
   const parts = [];
-  if (state.settings.intentionSource === "neuralbridge") {
+  if (state.settings.intentionSource === "neurabridge") {
     const b =
       state.bridgeStatus === "connected"
         ? "Bridge connected"

@@ -10,7 +10,7 @@ X-related intention-native catalog browser and connector for the Neurabeach hub 
 
 ## Suite role
 
-`suite_role: app` — computer-side connector that sits between **NeuraBeach** (discover) and suite demos (Shell, Binder, RoboBridge, …). Optional **NeuralBridge** intention source.
+`suite_role: app` — computer-side connector that sits between **NeuraBeach** (discover) and suite demos (Shell, Binder, RoboBridge, …). Optional **Neurabridge** intention source.
 
 ## Safety
 

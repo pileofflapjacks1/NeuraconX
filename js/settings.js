@@ -5,7 +5,7 @@
 const STORAGE_KEY = "neuraconx.settings.v1";
 
 /** @typedef {'standard'|'strict'} ConfirmStrictness */
-/** @typedef {'simulator'|'neuralbridge'} IntentionSource */
+/** @typedef {'simulator'|'neurabridge'} IntentionSource */
 
 /**
  * @typedef {Object} AppSettings

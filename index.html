@@ -89,7 +89,7 @@
           <div>
             <h2>Settings</h2>
             <p class="lede">
-              Tune simulator feel, catalog source, and NeuralBridge. Changes save
+              Tune simulator feel, catalog source, and Neurabridge. Changes save
               locally in this browser.
             </p>
           </div>
@@ -190,17 +190,17 @@
           <label for="setting-intention-source">Source</label>
           <select id="setting-intention-source">
             <option value="simulator">Simulator — keyboard / mouse only</option>
-            <option value="neuralbridge">NeuralBridge — local WebSocket + keyboard</option>
+            <option value="neurabridge">Neurabridge — local WebSocket + keyboard</option>
           </select>
           <p class="hint">
-            Keyboard always works as a fallback. NeuralBridge mode connects as an
+            Keyboard always works as a fallback. Neurabridge mode connects as an
             observer to a local multi-client service (research only — not implant
             hardware).
           </p>
         </div>
 
         <div class="field">
-          <label for="setting-bridge-url">NeuralBridge WebSocket URL</label>
+          <label for="setting-bridge-url">Neurabridge WebSocket URL</label>
           <input
             id="setting-bridge-url"
             type="text"
@@ -211,7 +211,7 @@
           />
           <p class="hint">
             Default: <code>ws://127.0.0.1:7711</code> · start with
-            <code>npx neuralbridge serve --port 7711</code>
+            <code>npx neurabridge serve --port 7711</code>
           </p>
         </div>
 

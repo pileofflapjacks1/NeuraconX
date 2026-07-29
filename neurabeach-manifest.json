@@ -3,7 +3,7 @@
   "name": "neuraconx",
   "display_name": "NeuraconX",
   "version": "0.1.0",
-  "description": "X-related intention-native catalog browser and connector for the Neurabeach hub. Keyboard/mouse simulator plus optional NeuralBridge; multi-step safe confirm before opening demos or repos. Research prototype only — not implant software.",
+  "description": "X-related intention-native catalog browser and connector for the Neurabeach hub. Keyboard/mouse simulator plus optional Neurabridge; multi-step safe confirm before opening demos or repos. Research prototype only — not implant software.",
   "safety_class": "research_only",
   "runtime": "web",
   "inputs": ["class_label", "switch_binary", "synthetic"],
@@ -17,7 +17,7 @@
   "entrypoint": "https://neuraconx.vercel.app",
   "repository": "https://github.com/pileofflapjacks1/NeuraconX",
   "suite_role": "app",
-  "depends_on": ["neuralbridge"],
+  "depends_on": ["neurabridge"],
   "adapter_maturity": "simulator_only",
   "banned_claims": true
 }

@@ -1,7 +1,7 @@
 /**
- * NeuraconX — NeuralBridge WebSocket adapter (optional).
+ * NeuraconX — Neurabridge WebSocket adapter (optional).
  *
- * Connects as an observer to a local NeuralBridge multi-client service
+ * Connects as an observer to a local Neurabridge multi-client service
  * (default ws://127.0.0.1:7711) and maps intention events onto the
  * NeuraconX intention bus.
  *
@@ -13,7 +13,7 @@ import { INTENTIONS } from "./intentions.js";
 /** @typedef {'disconnected'|'connecting'|'connected'|'error'} BridgeStatus */
 
 /**
- * Map NeuralBridge / suite intention types → NeuraconX high-level intentions.
+ * Map Neurabridge / suite intention types → NeuraconX high-level intentions.
  * @type {Record<string, string>}
  */
 const INTENT_MAP = {
@@ -26,7 +26,7 @@ const INTENT_MAP = {
   confirm: INTENTIONS.CONFIRM,
   cancel: INTENTIONS.CANCEL,
   back: INTENTIONS.BACK,
-  // NeuralBridge built-ins
+  // Neurabridge built-ins
   click: INTENTIONS.SELECT,
   next: INTENTIONS.MOVE_RIGHT,
   scroll_up: INTENTIONS.MOVE_UP,
@@ -42,7 +42,7 @@ const INTENT_MAP = {
  * @param {string} [opts.clientName]
  * @param {string} [opts.token]
  */
-export function createNeuralBridgeAdapter(opts) {
+export function createNeurabridgeAdapter(opts) {
   const emit = opts.emit;
   const onStatus = opts.onStatus || (() => {});
   let url = opts.url || "ws://127.0.0.1:7711";
@@ -93,7 +93,7 @@ export function createNeuralBridgeAdapter(opts) {
     if (!msg || typeof msg !== "object") return;
 
     if (msg.type === "welcome" || msg.type === "hello") {
-      setStatus("connected", `NeuralBridge · ${msg.role || "client"}`);
+      setStatus("connected", `Neurabridge · ${msg.role || "client"}`);
       reconnectAttempt = 0;
       return;
     }
@@ -150,7 +150,7 @@ export function createNeuralBridgeAdapter(opts) {
       confidence,
       timestamp:
         typeof data.timestamp === "number" ? data.timestamp : Date.now(),
-      source: "neuralbridge",
+      source: "neurabridge",
       payload: {
         bridgeType: rawType,
         raw: data,
@@ -195,13 +195,13 @@ export function createNeuralBridgeAdapter(opts) {
         /* ignore */
       }
       // Status may stay connecting until welcome; mark connected optimistically
-      setStatus("connected", "NeuralBridge handshake sent");
+      setStatus("connected", "Neurabridge handshake sent");
     };
 
     ws.onmessage = onMessage;
 
     ws.onerror = () => {
-      setStatus("error", "WebSocket error — is neuralbridge serve running?");
+      setStatus("error", "WebSocket error — is neurabridge serve running?");
     };
 
     ws.onclose = () => {

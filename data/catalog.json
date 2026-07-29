@@ -61,9 +61,9 @@
       "installHint": "git clone https://github.com/pileofflapjacks1/NeuraBinder && cd NeuraBinder && pnpm install && pnpm dev"
     },
     {
-      "id": "neuralbridge",
-      "slug": "neuralbridge",
-      "name": "NeuralBridge",
+      "id": "neurabridge",
+      "slug": "neurabridge",
+      "name": "Neurabridge",
       "shortDescription": "Intention middleware: simulator backends, multi-client bus, policies, and app-facing intention API.",
       "category": "tool",
       "status": "available",
@@ -75,9 +75,9 @@
         "suite"
       ],
       "demoUrl": "https://neura-binder.vercel.app/demo",
-      "projectUrl": "https://neurabeach.com/projects/neuralbridge",
-      "githubUrl": "https://github.com/pileofflapjacks1/neuralbridge",
-      "installHint": "git clone https://github.com/pileofflapjacks1/neuralbridge && cd neuralbridge && npm install && npm run build && npx neuralbridge serve --port 7711"
+      "projectUrl": "https://neurabeach.com/projects/neurabridge",
+      "githubUrl": "https://github.com/pileofflapjacks1/neurabridge",
+      "installHint": "git clone https://github.com/pileofflapjacks1/neurabridge && cd neurabridge && npm install && npm run build && npx neurabridge serve --port 7711"
     },
     {
       "id": "neurarobobridge",
